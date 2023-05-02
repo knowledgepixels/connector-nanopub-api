@@ -1,4 +1,4 @@
-#+ summary: Get superpattern nanopublications
+#+ summary: Get all superpattern nanopublications
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False

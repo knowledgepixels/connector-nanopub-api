@@ -1,4 +1,4 @@
-#+ summary: Get individual definition nanopublications
+#+ summary: Get all individual definition nanopublications
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False

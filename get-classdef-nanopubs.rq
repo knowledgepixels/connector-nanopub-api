@@ -1,4 +1,4 @@
-#+ summary: Get class definition nanopublications
+#+ summary: Get all class definition nanopublications
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False

@@ -1,4 +1,4 @@
-#+ summary: Get all simple LinkFlows relation nanopublications
+#+ summary: Get all Machine Learning evaluation nanopublications
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False
@@ -9,9 +9,8 @@ prefix npx: <http://purl.org/nanopub/x/>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 prefix dct: <http://purl.org/dc/terms/>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-prefix nt: <https://w3id.org/np/o/ntemplate/>
 
-select distinct ?np ?subj ?rel ?obj ?label ?date where {
+select distinct ?np ?run ?label ?description ?date where {
   graph npa:graph {
     ?np npa:hasHeadGraph ?h .
     ?np dct:created ?date .
@@ -22,20 +21,14 @@ select distinct ?np ?subj ?rel ?obj ?label ?date where {
     ?np np:hasPublicationInfo ?i.
   }
   graph ?a {
-    ?subj ?rel ?obj .
-    filter regex(?rel, "https://w3id.org/linkflows/superpattern/terms/.*")
+    ?run a <http://www.w3.org/ns/mls#Run> .
+    ?run rdfs:label ?label .
+    optional { ?run dct:description ?description . }
   }
   graph ?i {
+    ?np npx:introduces ?run .
     ?np dct:creator ?__creator_iri .
-    optional { ?subj nt:hasLabelFromApi ?subjlabel }
-    optional { ?obj nt:hasLabelFromApi ?objlabel }
   }
-  graph <http://purl.org/np/RAm_J6ouyexskBDx9FEIvv9SEKoN_s7KIQMMvx8ZL_3PA#assertion> {
-    ?rel rdfs:label ?rellabel .
-  }
-  bind(coalesce(replace(str(?subjlabel), " - .*", ""), replace(str(?subj), "^.*/([^/]*)$", "$1")) as ?subjx)
-  bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*/([^/]*)$", "$1")) as ?objx)
-  bind(concat(?subjx, " ", ?rellabel, " ", ?objx) as ?label)
   filter not exists {
     graph npa:graph {
       ?newversion npa:hasHeadGraph ?nh .

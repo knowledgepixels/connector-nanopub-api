@@ -1,4 +1,4 @@
-#+ summary: Get AIDA nanopublications
+#+ summary: Get all AIDA nanopublications
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False

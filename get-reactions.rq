@@ -1,4 +1,4 @@
-#+ summary: Get the reactions from nanopublication users on a given paper.
+#+ summary: Get all reactions from nanopublication users on a given paper
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False
