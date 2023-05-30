@@ -9,6 +9,7 @@ prefix npx: <http://purl.org/nanopub/x/>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 prefix dct: <http://purl.org/dc/terms/>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
 
 select distinct ?np ?class ?label ?superclass ?date where {
   graph npa:graph {
@@ -21,8 +22,9 @@ select distinct ?np ?class ?label ?superclass ?date where {
     ?np np:hasPublicationInfo ?i.
   }
   graph ?a {
-    ?class rdfs:subClassOf ?superclass .
+    ?class a owl:Class .
     ?class rdfs:label ?label .
+    optional { ?class rdfs:subClassOf ?superclass . }
   }
   graph ?i {
     ?np dct:creator ?__creator_iri .
