@@ -14,22 +14,22 @@ prefix nt: <https://w3id.org/np/o/ntemplate/>
 
 select distinct ?np ?user ?thing ?label (group_concat(?statement, " ") as ?statements) ?date where {
   graph npa:graph {
-    ?_np_iri npa:hasHeadGraph ?h .
-    ?_np_iri dct:created ?date .
-    ?_np_iri npa:hasValidSignatureForPublicKey ?pubkey .
+    ?__np_iri npa:hasHeadGraph ?h .
+    ?__np_iri dct:created ?date .
+    ?__np_iri npa:hasValidSignatureForPublicKey ?pubkey .
   }
   graph ?h {
-    ?_np_iri np:hasAssertion ?a .
-    ?_np_iri np:hasPublicationInfo ?i .
+    ?__np_iri np:hasAssertion ?a .
+    ?__np_iri np:hasPublicationInfo ?i .
   }
   graph ?a {
     ?subj ?rel ?obj .
     optional { ?thing rdfs:label ?thingLabel. }
   }
   graph ?i {
-    ?_np_iri dct:creator ?user .
+    ?__np_iri dct:creator ?user .
     ?np nt:wasCreatedFromTemplate ?template .
-    optional { ?_np_iri npx:introduces ?thing . }
+    optional { ?__np_iri npx:introduces ?thing . }
   }
   ?template np:hasAssertion ?templatea .
   optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
@@ -46,5 +46,5 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement, " ") as ?state
   bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
   bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
   bind(str(?thingLabel) as ?label)
-  bind(?_np_iri as ?np)
+  bind(?__np_iri as ?np)
 } group by ?np ?user ?thing ?thingLabel ?date
