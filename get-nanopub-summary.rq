@@ -1,4 +1,4 @@
-#+ summary: Get the nanopublications referring to a given paper.
+#+ summary: Get a human-readable summary for a given nanopublication.
 #+ method: GET
 #+ pagination: 1000
 #+ endpoint_in_url: False
@@ -10,8 +10,9 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 prefix dct: <http://purl.org/dc/terms/>
 prefix oa: <http://www.w3.org/ns/oa#>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix nt: <https://w3id.org/np/o/ntemplate/>
 
-select distinct ?np ?user (count(?subj) as ?assertionTriples) (sample(?subj) as ?subjSample) (sample(?rel) as ?relSample) (sample(?obj) as ?objSample) ?thing ?thingLabel ?date where {
+select distinct ?np ?user ?thing (str(?thingLabel) as ?label) (group_concat(?statement, " ") as ?statements) ?date where {
   graph npa:graph {
     ?_np_iri npa:hasHeadGraph ?h .
     ?_np_iri dct:created ?date .
@@ -27,7 +28,22 @@ select distinct ?np ?user (count(?subj) as ?assertionTriples) (sample(?subj) as 
   }
   graph ?i {
     ?_np_iri dct:creator ?user .
+    ?np nt:wasCreatedFromTemplate ?template .
     optional { ?_np_iri npx:introduces ?thing . }
   }
+  ?template np:hasAssertion ?templatea .
+  optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
+  optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
+  optional { graph ?i { ?obj nt:hasLabelFromApi ?objlabel1 } }
+  optional { graph ?templatea { ?subj rdfs:label ?subjlabel2 } }
+  optional { graph ?templatea { ?rel rdfs:label ?rellabel2 } }
+  optional { graph ?templatea { ?obj rdfs:label ?objlabel2 } }
+  bind(coalesce(?subjlabel1, ?subjlabel2) as ?subjlabel)
+  bind(coalesce(?rellabel1, ?rellabel2) as ?rellabel)
+  bind(coalesce(?objlabel1, ?objlabel2) as ?objlabel)
+  bind(coalesce(replace(str(?subjlabel), " - .*", ""), replace(str(?subj), "^.*[/#]([^/#]*)$", "$1")) as ?subjx)
+  bind(coalesce(replace(str(?rellabel), " - .*", ""), replace(str(?rel), "^.*[/#]([^/#]*)$", "$1")) as ?relx)
+  bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
+  bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
   bind(?_np_iri as ?np)
 } group by ?np ?user ?thing ?thingLabel ?date
