@@ -12,7 +12,7 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix nt: <https://w3id.org/np/o/ntemplate/>
 
-select distinct ?np ?user ?thing ?label (group_concat(?statement, " ") as ?statements) ?date where {
+select distinct ?np ?user ?thing ?label ?date where {
   graph npa:graph {
     ?_np_iri npa:hasHeadGraph ?h .
     ?_np_iri dct:created ?date .
