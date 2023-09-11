@@ -29,8 +29,8 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
   graph ?i {
     ?_np_iri dct:creator ?user .
     ?np nt:wasCreatedFromTemplate ?template .
-    optional { ?_np_iri npx:introduces ?thing . }
   }
+  optional { graph ?i { ?_np_iri npx:introduces ?thing . } }
   ?template np:hasAssertion ?templatea .
   optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
   optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
