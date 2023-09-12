@@ -31,6 +31,7 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
     ?np nt:wasCreatedFromTemplate ?template .
   }
   optional { graph ?i { ?_np_iri npx:introduces ?thing . } }
+  optional { graph ?i { ?_np_iri rdfs:label ?nanopubLabel . } }
   ?template np:hasAssertion ?templatea .
   optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
   optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
@@ -45,6 +46,6 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
   bind(coalesce(replace(str(?rellabel), " - .*", ""), replace(str(?rel), "^.*[/#]([^/#]*)$", "$1")) as ?relx)
   bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
   bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
-  bind(str(?thingLabel) as ?label)
+  bind(coalesce(str(?nanopubLabel), str(?thingLabel)) as ?label)
   bind(?_np_iri as ?np)
 } group by ?np ?user ?thing ?label ?date
