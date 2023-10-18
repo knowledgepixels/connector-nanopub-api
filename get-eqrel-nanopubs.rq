@@ -1,0 +1,55 @@
+#+ summary: Get all equivalent/related relation nanopublications
+#+ method: GET
+#+ pagination: 1000
+#+ endpoint_in_url: False
+
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix np: <http://www.nanopub.org/nschema#>
+prefix npa: <http://purl.org/nanopub/admin/>
+prefix npx: <http://purl.org/nanopub/x/>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix dct: <http://purl.org/dc/terms/>
+prefix biolink: <https://w3id.org/biolink/vocab/>
+prefix nt: <https://w3id.org/np/o/ntemplate/>
+prefix biodiv: <https://w3id.org/kpxl/biodiv/terms/>
+
+select distinct ?np ?label ?date where {
+  graph npa:graph {
+    ?np npa:hasHeadGraph ?h .
+    ?np dct:created ?date .
+    ?np npa:hasValidSignatureForPublicKey ?pubkey .
+  }
+  graph ?h {
+    ?np np:hasPublicationInfo ?i.
+  }
+  graph ?i {
+    ?np dct:creator ?__creator_iri .
+    ?np rdfs:label ?label .
+    ?np npx:hasNanopubType <http://www.w3.org/2004/02/skos/core#relatedMatch> .
+  }
+  filter not exists {
+    graph npa:graph {
+      ?newversion npa:hasHeadGraph ?nh .
+      ?newversion npa:hasValidSignatureForPublicKey ?pubkey .
+    }
+    graph ?nh {
+      ?newversion np:hasPublicationInfo ?ni .
+    }
+    graph ?ni {
+      ?newversion npx:supersedes ?np .
+    }
+  }
+  filter not exists {
+    graph npa:graph {
+      ?retraction npa:hasHeadGraph ?rh .
+      ?retraction npa:hasValidSignatureForPublicKey ?pubkey .
+    }
+    graph ?rh {
+      ?retraction np:hasAssertion ?ra .
+    }
+    graph ?ra {
+      ?somebody npx:retracts ?np .
+    }
+  }
+}
+order by desc(?date)
