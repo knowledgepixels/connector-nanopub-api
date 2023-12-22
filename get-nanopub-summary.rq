@@ -17,6 +17,7 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
   graph npa:graph {
     bind(replace(str(?_np_iri), "^.*[^a-zA-Z0-9-_](RA[a-zA-Z0-9-_]{43})$", "$1") as ?ac)
     ?np npa:artifactCode ?ac .
+    optional {<x:> <x:> ?_np_iri}  # for grlc to pick up the placeholder
     ?np npa:hasHeadGraph ?h .
     ?np dct:created ?date .
     ?np npa:hasValidSignatureForPublicKey ?pubkey .
