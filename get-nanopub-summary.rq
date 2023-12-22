@@ -1,6 +1,7 @@
 #+ summary: Get a human-readable summary for a given nanopublication.
 #+ method: GET
 #+ pagination: 1000
+#+ endpoint: https://query.knowledgepixels.com/repo/full
 #+ endpoint_in_url: False
 
 prefix np: <http://www.nanopub.org/nschema#>
@@ -14,24 +15,27 @@ prefix nt: <https://w3id.org/np/o/ntemplate/>
 
 select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ') as ?statements) ?date where {
   graph npa:graph {
-    ?_np_iri npa:hasHeadGraph ?h .
-    ?_np_iri dct:created ?date .
-    ?_np_iri npa:hasValidSignatureForPublicKey ?pubkey .
+    bind(replace(str(?_np_iri), "^.*[^a-zA-Z0-9-_](RA[a-zA-Z0-9-_]{43})$", "$1") as ?ac)
+    ?np npa:artifactCode ?ac .
+    ?np npa:hasHeadGraph ?h .
+    ?np dct:created ?date .
+    ?np npa:hasValidSignatureForPublicKey ?pubkey .
+    
   }
   graph ?h {
-    ?_np_iri np:hasAssertion ?a .
-    ?_np_iri np:hasPublicationInfo ?i .
+    ?np np:hasAssertion ?a .
+    ?np np:hasPublicationInfo ?i .
   }
   graph ?a {
     ?subj ?rel ?obj .
     optional { ?thing rdfs:label ?thingLabel. }
   }
   graph ?i {
-    ?_np_iri dct:creator ?user .
+    ?np dct:creator ?user .
     ?np nt:wasCreatedFromTemplate ?template .
   }
-  optional { graph ?i { ?_np_iri npx:introduces ?thing . } }
-  optional { graph ?i { ?_np_iri rdfs:label ?nanopubLabel . } }
+  optional { graph ?i { ?np npx:introduces ?thing . } }
+  optional { graph ?i { ?np rdfs:label ?nanopubLabel . } }
   ?template np:hasAssertion ?templatea .
   optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
   optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
@@ -47,5 +51,4 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
   bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
   bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
   bind(coalesce(str(?nanopubLabel), str(?thingLabel)) as ?label)
-  bind(?_np_iri as ?np)
 } group by ?np ?user ?thing ?label ?date
