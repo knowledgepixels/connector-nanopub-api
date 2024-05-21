@@ -13,7 +13,7 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix nt: <https://w3id.org/np/o/ntemplate/>
 
-select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ') as ?statements) ?date where {
+select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(?creator; separator=' ') as ?creators) ?thing ?label (group_concat(?statement; separator=' ') as ?statements) ?date where {
   graph npa:graph {
     bind(replace(str(?_np_iri), "^.*[^a-zA-Z0-9-_](RA[a-zA-Z0-9-_]{43})$", "$1") as ?ac)
     ?np npa:artifactCode ?ac .
@@ -21,22 +21,16 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
     ?np npa:hasHeadGraph ?h .
     ?np dct:created ?date .
     ?np npa:hasValidSignatureForPublicKey ?pubkey .
-    
-  }
-  graph ?h {
+    ?np rdfs:label ?label .
     ?np np:hasAssertion ?a .
     ?np np:hasPublicationInfo ?i .
-  }
-  graph ?a {
-    ?subj ?rel ?obj .
-    optional { ?thing rdfs:label ?thingLabel. }
+    ?np dct:creator ?creator .
+    optional { ?np npx:signedBy ?signer . }
+    optional { ?np npx:introduces ?thing . }
   }
   graph ?i {
-    ?np dct:creator ?user .
     ?np nt:wasCreatedFromTemplate ?template .
   }
-  optional { graph ?i { ?np npx:introduces ?thing . } }
-  optional { graph ?i { ?np rdfs:label ?nanopubLabel . } }
   ?template np:hasAssertion ?templatea .
   optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
   optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
@@ -51,5 +45,6 @@ select distinct ?np ?user ?thing ?label (group_concat(?statement; separator=' ')
   bind(coalesce(replace(str(?rellabel), " - .*", ""), replace(str(?rel), "^.*[/#]([^/#]*)$", "$1")) as ?relx)
   bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
   bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
-  bind(coalesce(str(?nanopubLabel), str(?thingLabel)) as ?label)
-} group by ?np ?user ?thing ?label ?date
+}
+group by ?np ?signer ?thing ?label ?date
+order by ?creator
