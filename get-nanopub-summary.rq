@@ -13,7 +13,7 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix nt: <https://w3id.org/np/o/ntemplate/>
 
-select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(distinct ?creator; separator=' ') as ?creators) ?thing ?label (group_concat(distinct ?statement; separator=' ') as ?statements) ?date where {
+select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(distinct ?creator; separator=' ') as ?creators) ?thing ?label ?date where {
   graph npa:graph {
     bind(replace(str(?_np_iri), "^.*[^a-zA-Z0-9-_](RA[a-zA-Z0-9-_]{43})$", "$1") as ?ac)
     ?np npa:artifactCode ?ac .
@@ -28,23 +28,6 @@ select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(di
     optional { ?np npx:signedBy ?signer . }
     optional { ?np npx:introduces ?thing . }
   }
-  graph ?i {
-    ?np nt:wasCreatedFromTemplate ?template .
-  }
-  ?template np:hasAssertion ?templatea .
-  optional { graph ?i { ?subj nt:hasLabelFromApi ?subjlabel1 } }
-  optional { graph ?i { ?rel nt:hasLabelFromApi ?rellabel1 } }
-  optional { graph ?i { ?obj nt:hasLabelFromApi ?objlabel1 } }
-  optional { graph ?templatea { ?subj rdfs:label ?subjlabel2 } }
-  optional { graph ?templatea { ?rel rdfs:label ?rellabel2 } }
-  optional { graph ?templatea { ?obj rdfs:label ?objlabel2 } }
-  bind(coalesce(?subjlabel1, ?subjlabel2) as ?subjlabel)
-  bind(coalesce(?rellabel1, ?rellabel2) as ?rellabel)
-  bind(coalesce(?objlabel1, ?objlabel2) as ?objlabel)
-  bind(coalesce(replace(str(?subjlabel), " - .*", ""), replace(str(?subj), "^.*[/#]([^/#]*)$", "$1")) as ?subjx)
-  bind(coalesce(replace(str(?rellabel), " - .*", ""), replace(str(?rel), "^.*[/#]([^/#]*)$", "$1")) as ?relx)
-  bind(coalesce(replace(str(?objlabel), " - .*", ""), replace(str(?obj), "^.*[/#]([^/#]*)$", "$1")) as ?objx)
-  bind(concat(?subjx, " ", ?relx, " ", ?objx, ".") as ?statement)
 }
 group by ?np ?signer ?thing ?label ?date
 order by ?creator
