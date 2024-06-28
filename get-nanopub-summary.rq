@@ -16,7 +16,7 @@ prefix pav: <http://purl.org/pav/>
 prefix bibo: <http://purl.org/ontology/bibo/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(distinct ?creator; separator=' ') as ?creators) (coalesce(?firstAuthor, min(?author), min(?creator)) as ?mainAuthor) (count(distinct ?author) as ?authorCount) ?thing ?label ?date where {
+select distinct ?np (coalesce(?signer, min(?creator)) as ?user) (group_concat(distinct ?creator; separator=' ') as ?creators) (coalesce(?firstAuthor, min(?author), min(?creator)) as ?mainAuthor) (if(count(distinct ?author)>0,count(distinct ?author),count(distinct ?creator)) as ?authorCount) ?thing ?label ?date where {
   graph npa:graph {
     bind(replace(str(?_np_iri), "^.*[^a-zA-Z0-9-_](RA[a-zA-Z0-9-_]{43})$", "$1") as ?ac)
     ?np npa:artifactCode ?ac .
